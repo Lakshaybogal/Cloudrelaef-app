@@ -86,9 +86,7 @@ class AppServices {
     final temp = Directory(
       p.join((await getTemporaryDirectory()).path, 'cloudrelaef'),
     );
-    final downloads =
-        await getDownloadsDirectory() ??
-        await getApplicationDocumentsDirectory();
+    final downloads = await _downloadsDir(docs);
     return AppServices._(
       host: host,
       secrets: secrets,
@@ -97,6 +95,24 @@ class AppServices {
       tempDir: temp,
       downloadsDir: downloads,
     );
+  }
+
+  /// Downloads folder, falling back when the OS cannot say (minimal Linux
+  /// installs without xdg-user-dirs make these lookups throw).
+  static Future<Directory> _downloadsDir(Directory support) async {
+    for (final lookup in [
+      getDownloadsDirectory,
+      getApplicationDocumentsDirectory,
+    ]) {
+      try {
+        final d = await lookup();
+        if (d != null) return d;
+      } on Exception {
+        continue;
+      }
+    }
+    return Directory(p.join(support.path, 'downloads'))
+      ..createSync(recursive: true);
   }
 
   /// For tests and previews: bring your own host, secrets and registry.
