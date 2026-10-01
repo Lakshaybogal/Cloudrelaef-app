@@ -86,29 +86,36 @@ class FilePage {
   final String? nextCursor;
 }
 
-/// OAuth endpoints are described per provider; the PKCE flow itself lives in
-/// the auth layer (M2).
+/// The user's own OAuth app (bring-your-own-keys). A client secret is only
+/// needed by providers that still require one for public clients (Google
+/// desktop clients). It is not confidential, but is kept in the secret store.
+class OAuthClientConfig {
+  const OAuthClientConfig({required this.clientId, this.clientSecret});
+  final String clientId;
+  final String? clientSecret;
+}
+
+/// A provider is constructed with the user's [OAuthClientConfig]; the PKCE
+/// flow itself lives in the auth layer.
 abstract class StorageProvider {
   String get id;
 
+  /// Human name for the UI.
+  String get displayName;
+
   Uri authUrl({
-    required String clientId,
     required String state,
     required String redirectUri,
     required String codeChallenge,
   });
 
   Future<TokenSet> exchangeCode({
-    required String clientId,
     required String code,
     required String redirectUri,
     required String verifier,
   });
 
-  Future<AccessToken> refreshToken({
-    required String clientId,
-    required String refreshToken,
-  });
+  Future<AccessToken> refreshToken(String refreshToken);
 
   Future<Quota> getQuota(AccessToken access);
 

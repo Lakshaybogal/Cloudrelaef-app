@@ -9,6 +9,8 @@ class FakeProvider implements StorageProvider {
 
   @override
   final String id;
+  @override
+  String get displayName => 'Fake';
   final int? total;
   final Map<String, List<int>> _bytes = {};
   final Map<String, RemoteFile> _files = {};
@@ -18,12 +20,11 @@ class FakeProvider implements StorageProvider {
 
   @override
   Uri authUrl({
-    required String clientId,
     required String state,
     required String redirectUri,
     required String codeChallenge,
   }) => Uri.https('fake.example', '/auth', {
-    'client_id': clientId,
+    'client_id': 'fake-client',
     'state': state,
     'redirect_uri': redirectUri,
     'code_challenge': codeChallenge,
@@ -31,7 +32,6 @@ class FakeProvider implements StorageProvider {
 
   @override
   Future<TokenSet> exchangeCode({
-    required String clientId,
     required String code,
     required String redirectUri,
     required String verifier,
@@ -43,10 +43,7 @@ class FakeProvider implements StorageProvider {
   );
 
   @override
-  Future<AccessToken> refreshToken({
-    required String clientId,
-    required String refreshToken,
-  }) async => _token;
+  Future<AccessToken> refreshToken(String refreshToken) async => _token;
 
   @override
   Future<Quota> getQuota(AccessToken access) async => Quota(
