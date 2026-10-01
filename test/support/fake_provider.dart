@@ -12,6 +12,9 @@ class FakeProvider implements StorageProvider {
   @override
   String get displayName => 'Fake';
   final int? total;
+
+  /// When true, delete() fails like a provider outage.
+  bool failDeletes = false;
   final Map<String, List<int>> _bytes = {};
   final Map<String, RemoteFile> _files = {};
   int _next = 0;
@@ -107,6 +110,7 @@ class FakeProvider implements StorageProvider {
 
   @override
   Future<void> delete(AccessToken access, String remoteId) async {
+    if (failDeletes) throw ProviderError('outage', status: 503);
     if (_files.remove(remoteId) == null) {
       throw ProviderError('not found', status: 404);
     }
