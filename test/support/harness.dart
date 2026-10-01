@@ -11,10 +11,18 @@ import 'fake_provider.dart';
 
 /// Wires every service against in-memory fakes.
 class Harness {
-  Harness({int totalA = 1000, int totalB = 1000, this.margin = 0})
-    : a = FakeProvider(id: 'fakeA', total: totalA),
-      b = FakeProvider(id: 'fakeB', total: totalB) {
-    db = AppDatabase.memory();
+  /// Pass existing providers to simulate a second device looking at the same
+  /// clouds; [database] to use a file-backed database.
+  Harness({
+    int totalA = 1000,
+    int totalB = 1000,
+    this.margin = 0,
+    FakeProvider? providerA,
+    FakeProvider? providerB,
+    AppDatabase? database,
+  }) : a = providerA ?? FakeProvider(id: 'fakeA', total: totalA),
+       b = providerB ?? FakeProvider(id: 'fakeB', total: totalB) {
+    db = database ?? AppDatabase.memory();
     secrets = InMemorySecretStore();
     registry = ProviderRegistry([a, b]);
     accounts = AccountService(db, secrets, registry, now: () => now);

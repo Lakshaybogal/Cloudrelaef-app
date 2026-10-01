@@ -15,6 +15,9 @@ class FakeProvider implements StorageProvider {
 
   /// When true, delete() fails like a provider outage.
   bool failDeletes = false;
+
+  /// When true, upload() fails like a provider outage.
+  bool failUploads = false;
   final Map<String, List<int>> _bytes = {};
   final Map<String, RemoteFile> _files = {};
   int _next = 0;
@@ -73,6 +76,7 @@ class FakeProvider implements StorageProvider {
     required String mime,
     required Stream<List<int>> data,
   }) async {
+    if (failUploads) throw ProviderError('outage', status: 503);
     final buf = <int>[];
     await for (final chunk in data) {
       buf.addAll(chunk);

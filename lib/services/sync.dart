@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../backup/naming.dart';
 import '../data/db/database.dart';
 import '../providers/registry.dart';
 import '../providers/storage_provider.dart';
@@ -102,6 +103,8 @@ class SyncService {
       final page = await provider.listFiles(token, cursor: cursor);
       await _db.transaction(() async {
         for (final f in page.files) {
+          // Backup snapshots share the app folder but are not user files.
+          if (isBackupFileName(f.name)) continue;
           seenIds.add(f.remoteId);
           seen++;
           await _db
