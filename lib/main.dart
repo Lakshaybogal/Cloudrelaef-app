@@ -12,6 +12,7 @@ Future<void> main() async {
     final controller = AppController(services);
     // Reads the OS keystore: fails when no keyring service is available.
     await controller.reloadKeyState();
+    await services.webdav.restoreState();
     runApp(CloudRelaefApp(controller: controller));
   } catch (e) {
     runApp(StartupErrorApp(error: e));

@@ -7,6 +7,7 @@ import 'app_scope.dart';
 import 'backup_screen.dart';
 import 'dashboard_screen.dart';
 import 'files_screen.dart';
+import 'webdav_screen.dart';
 
 /// Navigation plus the background chores that run while the app is open:
 /// sync on start and the interval backup.
@@ -53,12 +54,14 @@ class _HomeShellState extends State<HomeShell> {
       const FilesScreen(),
       const AccountsScreen(),
       const BackupScreen(),
+      const WebDavScreen(),
     ];
     const destinations = [
       (Icons.dashboard_outlined, Icons.dashboard, 'Pool'),
       (Icons.folder_outlined, Icons.folder, 'Files'),
       (Icons.cloud_outlined, Icons.cloud, 'Accounts'),
       (Icons.backup_outlined, Icons.backup, 'Backup'),
+      (Icons.storage_outlined, Icons.storage, 'Drive'),
     ];
     final wide = MediaQuery.sizeOf(context).width >= 720;
     final body = IndexedStack(index: _index, children: pages);
