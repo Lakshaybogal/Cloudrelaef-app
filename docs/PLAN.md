@@ -1,6 +1,6 @@
 # Open-source local-first app: plan
 
-Status: **draft for approval**. Lives in the private repo only as a planning doc. Move it to the new public repo when that exists. Nothing here changes the current product.
+Status: **M0-M5 implemented, M6 in progress** (see the milestone table). Originally drafted in the private repo.
 
 ## Product in one paragraph
 A free, MIT-licensed Flutter app (Android, iOS, Windows, macOS, Linux). No account, no login, no hosted backend, no server database. The user's device is the server: it keeps a local SQLite database, talks to Google Drive, OneDrive and Dropbox directly, and on an interval writes an **encrypted snapshot of the database only** (not the files) to every connected cloud. If the device is lost or one cloud is removed, the user installs the app, connects any one cloud, enters their recovery key, and gets the index back.
@@ -55,7 +55,7 @@ test/              unit (placement, crypto, snapshot, provider adapters with fak
 1. **Trigger:** on an interval (default 6 h, configurable), after significant changes (debounced), on app open if overdue, and manually. Mobile uses the OS background scheduler (`workmanager`) as best effort; the app also catches up on open. Nothing is promised while the app is closed beyond what the OS grants.
 2. **Snapshot:** SQLite `VACUUM INTO` a temp file, so it is consistent -> gzip -> encrypt.
 3. **Crypto:** random 256-bit master key generated at setup, shown once as a recovery phrase/QR for the user to save, stored in the keystore. AES-256-GCM (or XChaCha20-Poly1305), fresh nonce per snapshot, header with format version, app version, schema version, snapshot id, device id, monotonic counter. Optional: wrap the key with a user passphrase (Argon2id).
-4. **Upload:** to every active cloud into an app folder (`/UniCloudBackup/`, using the app-folder scope where the provider has one). Write temp name then rename, keep the last N (default 10) per cloud, prune older ones. One cloud failing does not fail the others; each result is recorded and shown.
+4. **Upload:** to every active cloud into an app folder (`/UniCloudBackup/`, using the app-folder scope where the provider has one). Resumable/session uploads only become visible when complete, so no temp-name-then-rename step is needed. Keep the last N (default 10) per cloud and prune older ones. One cloud failing does not fail the others; each result is recorded and shown.
 5. **Restore:** new device -> connect any one cloud -> enter recovery key -> pick the newest valid snapshot (cross-check all connected clouds, pick highest counter) -> decrypt, verify, schema-migrate, replace the local DB -> re-authorize remaining clouds -> optional re-sync to reconcile with actual cloud contents.
 6. **Two devices:** single-writer assumption. On backup, if a cloud holds a snapshot with a newer counter from another device, warn and ask (keep mine / restore theirs) instead of overwriting silently.
 7. **Honest limit:** snapshots restore the index, folders and settings. File contents live only in each cloud; if a cloud is deleted, those files are gone (a re-sync just drops them).
@@ -63,13 +63,13 @@ test/              unit (placement, crypto, snapshot, provider adapters with fak
 ## Milestones
 | # | Scope | Done when |
 |---|---|---|
-| M0 | Repo bootstrap: Flutter 5-platform skeleton, MIT license, CI (analyze, test, build), secret scanning, CONTRIBUTING, SECURITY.md | CI green on a hello-world app |
-| M1 | Local DB (drift) + secure storage + provider interface + fake provider + placement + unit tests | Placement and DB tests pass |
-| M2 | OAuth PKCE + BYO-keys wizard + Google Drive adapter: connect, quota, list, upload, download, delete, rename | Real Drive account works end to end on desktop + Android |
-| M3 | Dropbox and OneDrive adapters, quirks from provider-notes, adapter contract tests shared by all three | Same contract suite passes for all three |
-| M4 | Unified file UI: pool dashboard, files, search, folders, trash, transfer between clouds, health | Core flows usable on phone and desktop layouts |
-| M5 | Backup/restore: snapshot, encryption, recovery key, multi-cloud upload, retention, restore, two-device warning, background scheduling | Wipe app, restore from a single cloud, index identical |
-| M6 | Hardening and release: token redaction audit, crash-safe writes, migrations tests, signed builds, installers (MSI/DMG/AppImage, APK/AAB, TestFlight), docs, README | v0.1.0 tagged |
+| M0 (done) | Repo bootstrap: Flutter 5-platform skeleton, MIT license, CI (analyze, test, build), secret scanning, CONTRIBUTING, SECURITY.md | CI green on a hello-world app |
+| M1 (done) | Local DB (drift) + secure storage + provider interface + fake provider + placement + unit tests | Placement and DB tests pass |
+| M2 (done, mocked HTTP) | OAuth PKCE + BYO-keys wizard + Google Drive adapter: connect, quota, list, upload, download, delete, rename | Real Drive account works end to end on desktop + Android |
+| M3 (done, mocked HTTP) | Dropbox and OneDrive adapters, quirks from provider-notes, adapter contract tests shared by all three | Same contract suite passes for all three |
+| M4 (done) | Unified file UI: pool dashboard, files, search, folders, trash, transfer between clouds, health | Core flows usable on phone and desktop layouts |
+| M5 (done) | Backup/restore: snapshot, encryption, recovery key, multi-cloud upload, retention, restore, two-device warning, background scheduling | Wipe app, restore from a single cloud, index identical |
+| M6 (in progress) | Hardening and release: token redaction audit, crash-safe writes, migrations tests, signed builds, installers (MSI/DMG/AppImage, APK/AAB, TestFlight), docs, README | v0.1.0 tagged |
 
 Later (not v1): bundled OAuth client IDs, more providers, file replication across clouds, multi-device merge, bring-your-own-key AI.
 

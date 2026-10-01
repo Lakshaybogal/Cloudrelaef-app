@@ -26,7 +26,7 @@ jobs:
         with:
           channel: stable
           cache: true
-      - run: sudo apt-get update && sudo apt-get install -y ninja-build libgtk-3-dev
+      - run: sudo apt-get update && sudo apt-get install -y ninja-build libgtk-3-dev libsecret-1-dev libjsoncpp-dev
       - run: flutter build linux --release
 
   build-android:
@@ -42,6 +42,26 @@ jobs:
           channel: stable
           cache: true
       - run: flutter build apk --debug
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter build windows --release
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter build macos --release
 
   secret-scan:
     runs-on: ubuntu-latest
