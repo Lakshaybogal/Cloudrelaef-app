@@ -30,6 +30,8 @@ class AppController extends ChangeNotifier {
   }
 
   void replaceServices(AppServices next) {
+    // The old graph's server must not keep serving a replaced database.
+    _services.webdav.dispose();
     _services = next;
     refresh();
     reloadKeyState();

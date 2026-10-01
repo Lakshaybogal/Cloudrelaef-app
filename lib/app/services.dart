@@ -16,6 +16,7 @@ import '../services/folders.dart';
 import '../services/placement.dart';
 import '../services/settings.dart';
 import '../services/sync.dart';
+import '../webdav/webdav_manager.dart';
 import 'provider_catalog.dart';
 
 /// Everything the UI needs, wired on one database. After a restore the
@@ -50,6 +51,14 @@ class AppServices {
       settings: settings,
       tempDir: tempDir,
     );
+    webdav = WebDavManager(
+      settings: settings,
+      secrets: secrets,
+      files: files,
+      folders: folders,
+      accounts: accounts,
+      tempDir: Directory(p.join(tempDir.path, 'webdav')),
+    );
     restore = RestoreService(
       host: host,
       secrets: secrets,
@@ -73,6 +82,7 @@ class AppServices {
   late final BackupKeyStore keys;
   late final BackupService backup;
   late final RestoreService restore;
+  late final WebDavManager webdav;
 
   /// Opens the real on-device database and keystore.
   static Future<AppServices> open() async {

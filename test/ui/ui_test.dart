@@ -7,6 +7,7 @@ import 'ui_harness.dart';
 Stream<List<int>> data(int n) => Stream.value(List.filled(n, 1));
 
 void main() {
+  webDavUiTests();
   testWidgets('first run asks to save the recovery key before continuing', (
     tester,
   ) async {
@@ -177,4 +178,37 @@ void main() {
     expect(find.textContaining('Keep it private'), findsOneWidget);
     await env.dispose(tester);
   });
+}
+
+void webDavUiTests() {
+  testWidgets(
+    'drive: switch starts the server, password is hidden until shown',
+    (tester) async {
+      final env = await UiEnv.create(tester);
+      await tester.runAsync(() => env.services.webdav.setPort(18899));
+      await env.pumpApp(tester);
+      await tester.tap(find.text('Drive'));
+      await env.settle(tester);
+      expect(find.text('Drive (WebDAV)'), findsOneWidget);
+      expect(find.text('Off'), findsOneWidget);
+      expect(find.text('http://127.0.0.1:18899/'), findsOneWidget);
+      expect(find.text('•' * 24), findsOneWidget);
+
+      await tester.tap(find.byType(Switch));
+      await env.settle(tester);
+      await env.settle(tester);
+      expect(find.text('Running'), findsOneWidget);
+
+      await tester.tap(find.byTooltip('Show'));
+      await tester.pump();
+      final pw = await tester.runAsync(() => env.services.webdav.password());
+      expect(find.text(pw!), findsOneWidget);
+
+      await tester.tap(find.byType(Switch));
+      await env.settle(tester);
+      await env.settle(tester);
+      expect(find.text('Off'), findsOneWidget);
+      await env.dispose(tester);
+    },
+  );
 }

@@ -12,6 +12,7 @@ Free, open-source, local-first app that pools your Google Drive, OneDrive and Dr
 ## What it does
 - Connect several cloud accounts and see one combined free-space number.
 - Upload: each file goes to the account with the most free space. Download, rename, search, virtual folders, trash, move a file between clouds.
+- Optional WebDAV drive: mount the pool in Finder/Explorer/rclone. Off by default, localhost only, password protected (see [docs/WEBDAV.md](docs/WEBDAV.md)).
 - Back up the index (file names, folders, settings, trash state) to every cloud every few hours while the app is open. Restore on a new device with your recovery key.
 
 ## What it does not do
