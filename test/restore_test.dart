@@ -204,8 +204,9 @@ void main() {
     final filesA = (await d1.a.listFiles(tok)).files
         .where((f) => isBackupFileName(f.name));
     for (final f in filesA) {
-      if (BackupFileName.parse(f.name)!.counter == 2)
+      if (BackupFileName.parse(f.name)!.counter == 2) {
         await d1.a.delete(tok, f.remoteId);
+      }
     }
     final d2 = await newDevice();
     // Connect B too so its snapshots are visible.

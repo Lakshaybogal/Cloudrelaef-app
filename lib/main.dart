@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(const CloudRelaefApp());
+import 'app/app.dart';
+import 'app/services.dart';
+import 'ui/app_scope.dart';
 
-class CloudRelaefApp extends StatelessWidget {
-  const CloudRelaefApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'CloudRelaef',
-      theme: ThemeData(colorSchemeSeed: Colors.indigo, useMaterial3: true),
-      home: const Scaffold(body: Center(child: Text('CloudRelaef'))),
-    );
-  }
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final services = await AppServices.open();
+  final controller = AppController(services);
+  await controller.reloadKeyState();
+  runApp(CloudRelaefApp(controller: controller));
 }

@@ -23,14 +23,19 @@ class OAuthException implements Exception {
   String toString() => 'OAuthException: $message';
 }
 
-/// Listens on `http://127.0.0.1:<random port>/` for one redirect.
+/// Listens on `http://<host>:<port>/` for one redirect. Port 0 picks a free
+/// port; the app uses a fixed port so the redirect URI can be registered
+/// exactly at providers that require it (Dropbox).
 class LoopbackRedirect implements RedirectListener {
+  LoopbackRedirect({this.port = 0, this.redirectHost = '127.0.0.1'});
+  final int port;
+  final String redirectHost;
   HttpServer? _server;
   final _result = Completer<Map<String, String>>();
 
   @override
   Future<String> start() async {
-    final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+    final server = await HttpServer.bind(InternetAddress.loopbackIPv4, port);
     _server = server;
     server.listen((req) async {
       req.response
@@ -45,7 +50,7 @@ class LoopbackRedirect implements RedirectListener {
         _result.complete(req.uri.queryParameters);
       }
     });
-    return 'http://127.0.0.1:${server.port}/';
+    return 'http://$redirectHost:${server.port}/';
   }
 
   @override
